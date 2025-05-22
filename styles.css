@@ -177,6 +177,7 @@ body.playlist-visible #playlist {
     margin-top: 15px;
     color: #bb86fc;
     padding: 8px 0;
+    padding-left: 12px;
     font-size: 0.95rem;
 }
 
