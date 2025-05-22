@@ -184,7 +184,7 @@ body.playlist-visible #playlist {
     height: 100% !important;
     background-color: #000;
     margin-left: 0;
-    margin-top: -10px;
+    margin-top: -5px;
     transition: margin-left 0.3s ease;
 }
 
@@ -456,3 +456,22 @@ body.playlist-visible .scroll-to-top.show {
 /*     opacity: 0; */
 /*     visibility: hidden; */
 /* } */
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 5px; /* Reduce padding on smaller screens */
+    }
+
+    .header {
+        gap: 10px; /* Reduce gap in header */
+    }
+
+    /* Kanal listesi açma/kapama çentiği her zaman görünür olsun */
+    #playlist-toggle-handle {
+        opacity: 1 !important; /* Make it always visible */
+        pointer-events: auto !important; /* Make it always interactive */
+    }
+
+    /* Add more mobile-specific styles here later */
+}
