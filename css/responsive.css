@@ -1,0 +1,157 @@
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+    .mobile-header {
+        display: block;
+    }
+
+    .main-content {
+        padding-top: 0;
+    }
+
+    .video-js {
+        height: 90vh !important;
+        min-height: 250px;
+    }
+    
+    #playlist {
+        width: 100%;
+        height: calc(100vh - 60px);
+        top: 60px;
+        padding: 15px;
+    }
+
+    body.playlist-visible #playlist {
+        transform: translateX(0);
+    }
+
+    body.playlist-visible .video-js {
+        margin-left: 0;
+        display: none;
+    }
+
+    #playlist-toggle-handle {
+        display: none;
+    }
+
+    .scroll-to-top {
+        bottom: 20px;
+        right: 20px;
+        left: auto;
+        width: 50px;
+        height: 50px;
+    }
+
+    .scroll-to-top svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    #upload-modal {
+        margin: 10px;
+        padding: 20px;
+        max-width: none;
+    }
+
+    .playlist-header-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #playlist h2 {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    #open-upload-modal-button {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+
+    #playlist li {
+        padding: 15px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .input-group {
+        gap: 12px;
+    }
+
+    #m3uFileInput,
+    #m3uUrlInput,
+    #loadUrlButton {
+        padding: 14px;
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .mobile-header {
+        padding: 8px 12px;
+    }
+
+    .mobile-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .mobile-btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+
+    #playlist {
+        padding: 10px;
+    }
+
+    #upload-modal {
+        padding: 15px;
+    }
+
+    #upload-modal h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    #playlist li:hover {
+        background-color: #333;
+    }
+
+    #playlist li:active {
+        background-color: #555;
+    }
+
+    .mobile-btn:hover {
+        background-color: #333;
+    }
+
+    .mobile-btn:active {
+        background-color: #555;
+    }
+
+    #open-upload-modal-button:hover {
+        background-color: #333;
+    }
+
+    #open-upload-modal-button:active {
+        background-color: #555;
+    }
+}
+
+/* Landscape mobile optimization */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .mobile-header {
+        padding: 5px 15px;
+    }
+
+    .mobile-header h1 {
+        font-size: 1rem;
+    }
+
+    #playlist {
+        height: calc(100vh - 40px);
+        top: 40px;
+    }
+}
