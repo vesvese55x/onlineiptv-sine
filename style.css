@@ -462,8 +462,8 @@ body.playlist-visible .scroll-to-top.show {
 
     .video-js {
         width: 100%;
-        height: auto;
-        max-height: 50vh;
+        height: calc(100vw * 0.5625);
+        min-height: 200px;
         margin: 10px auto;
         padding: 5px;
         border-radius: 8px;
@@ -484,7 +484,6 @@ body.playlist-visible .scroll-to-top.show {
         border-radius: 8px 8px 0 0;
         z-index: 1000;
         margin-top: 10px;
-        height: auto;
         order: 2;
     }
 
@@ -536,7 +535,8 @@ body.playlist-visible .scroll-to-top.show {
     }
 
     .video-js {
-        max-height: 40vh;
+        height: calc(100vw * 0.5625);
+        min-height: 200px;
         border-radius: 4px;
     }
 
