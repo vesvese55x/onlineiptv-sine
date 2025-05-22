@@ -9,6 +9,7 @@
     }
 
     .video-js {
+        top: -30px;
         height: 90vh !important;
         min-height: 250px;
     }
