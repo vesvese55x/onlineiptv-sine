@@ -20,26 +20,44 @@ playlistContainer.insertBefore(searchInput, playlistElement);
 
 let allChannelItems = [];
 
-// Function to update toggle handle visibility based on screen size
+// Global kanal listesi değişkeni
+let currentPlaylistChannels = [];
+
+// Dokunmatik olay dinleyicileri için değişkenler
+let touchStartX = 0;
+let touchStartY = 0; // Başlangıç dikey konumunu kaydetmek için
+let touchEndX = 0;
+let touchEndY = 0;
+let touchStartTime = 0;
+const swipeThreshold = 50; // Kaydırma hareketi için minimum mesafe (piksel)
+const tapThreshold = 10; // Dokunma için maksimum hareket mesafesi (piksel)
+const doubleTapThreshold = 300; // Çift dokunma için maksimum süre (ms)
+let lastTapTime = 0;
+
+// Ses ayarlama için eklenecek değişkenler
+let initialVolume = 0;
+let isVolumeDragging = false;
+const volumeDragThreshold = 5; // Ses ayarlama hareketini başlatmak için minimum dikey mesafe
+
+const videoPlayerElement = player.el(); // Video.js oynatıcı elementini al
+
 function updateToggleHandleVisibility() {
     if (window.innerWidth <= 768) {
-        // On smaller screens (phones/tablets), always show the handle
         playlistToggleHandle.style.opacity = '1';
         playlistToggleHandle.style.pointerEvents = 'auto';
     } else {
-        // On larger screens (desktops), initially hide the handle
-        // The mousemove listener will handle showing it on hover near the edge
-        if (!body.classList.contains('playlist-visible')) { // Don't hide if playlist is already visible
+        if (!body.classList.contains('playlist-visible')) {
            playlistToggleHandle.style.opacity = '0';
            playlistToggleHandle.style.pointerEvents = 'none';
+        } else {
+           playlistToggleHandle.style.opacity = '1';
+           playlistToggleHandle.style.pointerEvents = 'auto';
         }
     }
 }
 
-// Initial call on page load
 updateToggleHandleVisibility();
 
-// Update on window resize
 window.addEventListener('resize', updateToggleHandleVisibility);
 
 searchInput.addEventListener('input', (event) => {
@@ -56,25 +74,218 @@ searchInput.addEventListener('input', (event) => {
 });
 
 window.addEventListener('mousemove', (event) => {
-    // Only run this logic on wider screens (non-mobile)
     if (window.innerWidth > 768) {
         const mouseX = event.clientX;
-        const playlistRect = playlistContainer.getBoundingClientRect();
         const toggleHandleRect = playlistToggleHandle.getBoundingClientRect();
 
         const isNearLeftEdge = mouseX <= 75;
         const isOverHandle = mouseX >= toggleHandleRect.left && mouseX <= toggleHandleRect.right &&
                              event.clientY >= toggleHandleRect.top && event.clientY <= toggleHandleRect.bottom;
 
-        if (!body.classList.contains('playlist-visible') && isNearLeftEdge) {
+        if (!body.classList.contains('playlist-visible')) {
+            if (isNearLeftEdge || isOverHandle) { // Kenara yakınsa VEYA çentik üzerindeyse göster
+                playlistToggleHandle.style.opacity = '1';
+                playlistToggleHandle.style.pointerEvents = 'auto';
+            } else {
+                 playlistToggleHandle.style.opacity = '0';
+                 playlistToggleHandle.style.pointerEvents = 'none';
+            }
+        } else {
             playlistToggleHandle.style.opacity = '1';
             playlistToggleHandle.style.pointerEvents = 'auto';
-        } else if (!body.classList.contains('playlist-visible') && !isNearLeftEdge && !isOverHandle) {
-             playlistToggleHandle.style.opacity = '0';
-             playlistToggleHandle.style.pointerEvents = 'none';
         }
     }
 });
+
+window.addEventListener('touchstart', (event) => {
+     if (window.innerWidth > 768 && event.touches.length > 0) {
+        const touchX = event.touches[0].clientX;
+        const toggleHandleRect = playlistToggleHandle.getBoundingClientRect();
+
+        const isNearLeftEdge = touchX <= 75;
+        const isOverHandle = touchX >= toggleHandleRect.left && touchX <= toggleHandleRect.right &&
+                             event.touches[0].clientY >= toggleHandleRect.top && event.touches[0].clientY <= toggleHandleRect.bottom;
+
+        if (!body.classList.contains('playlist-visible') && (isNearLeftEdge || isOverHandle)) {
+            playlistToggleHandle.style.opacity = '1';
+            playlistToggleHandle.style.pointerEvents = 'auto';
+
+        } else if (!body.classList.contains('playlist-visible') && !isNearLeftEdge && !isOverHandle) {
+             playlistToggleHandle.style.opacity = '0';
+             playlistToggleHandle.style.pointerEvents = 'none';
+        } else if (body.classList.contains('playlist-visible')) {
+             playlistToggleHandle.style.opacity = '1';
+             playlistToggleHandle.style.pointerEvents = 'auto';
+        }
+     }
+});
+
+videoPlayerElement.addEventListener('touchstart', (event) => {
+    if (event.touches.length === 1) { // Tek parmak dokunuşu
+        touchStartX = event.changedTouches[0].clientX;
+        touchStartY = event.changedTouches[0].clientY;
+        touchStartTime = new Date().getTime();
+        initialVolume = player.volume(); // Dokunma başladığında sesi kaydet
+        isVolumeDragging = false; // Ses ayarlama bayrağını sıfırla
+        event.preventDefault(); // Varsayılan kaydırma davranışını engellemek isteyebiliriz
+    }
+});
+
+videoPlayerElement.addEventListener('touchmove', (event) => {
+    if (event.touches.length === 1) { // Tek parmak dokunuşu
+        const currentTouchY = event.touches[0].clientY;
+        const deltaY = currentTouchY - touchStartY; // Dikey hareket miktarı
+        const deltaX = event.changedTouches[0].clientX - touchStartX; // Yatay hareket miktarı
+
+        // Ses ayarlama hareketinin başlayıp başlamadığını kontrol et
+        if (!isVolumeDragging && Math.abs(deltaY) > volumeDragThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+             isVolumeDragging = true;
+             // Opsiyonel: İlk kaydırmadan sonra varsayılan davranışı engelle
+             // event.preventDefault();
+        }
+
+        if (isVolumeDragging) {
+            event.preventDefault(); // Ses ayarlama sırasında varsayılan kaydırmayı engelle
+
+            const playerHeight = videoPlayerElement.clientHeight;
+            // Dikey hareket miktarına göre ses değişimini hesapla
+            // Yukarı kaydırma (deltaY negatif) sesi artırır, aşağı (deltaY pozitif) azaltır.
+            // playerHeight boyunca yapılan kaydırma sesi tam olarak 0'dan 1'e veya tam tersi değiştirmeli.
+            const volumeChange = -deltaY / playerHeight;
+
+            let newVolume = initialVolume + volumeChange;
+
+            // Ses seviyesini 0 ile 1 arasında sınırla
+            newVolume = Math.max(0, Math.min(1, newVolume));
+
+            player.volume(newVolume);
+            // console.log('Ses seviyesi ayarlandı:', newVolume.toFixed(2)); // Hata ayıklama için
+        }
+    }
+});
+
+videoPlayerElement.addEventListener('touchend', (event) => {
+    touchEndX = event.changedTouches[0].clientX;
+    touchEndY = event.changedTouches[0].clientY;
+    const touchEndTime = new Date().getTime();
+    const tapDuration = touchEndTime - touchStartTime;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    const moveDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // Ses ayarlama hareketi yapılmadıysa dokunma ve kaydırma hareketlerini işle
+    if (!isVolumeDragging) {
+        if (moveDistance < tapThreshold) { // Bu bir dokunma olabilir
+            const currentTime = new Date().getTime();
+            const timeSinceLastTap = currentTime - lastTapTime;
+
+            if (timeSinceLastTap <= doubleTapThreshold) {
+                // Çift dokunma algılandı
+                console.log('Çift dokunma algılandı');
+                if (!player.paused()) {
+                    player.pause();
+                } else {
+                    player.play();
+                }
+                lastTapTime = 0; // Çift dokunmayı sıfırla
+            } else {
+                // Tek dokunma başlangıcı, çift dokunma için zamanı kaydet
+                lastTapTime = currentTime;
+                 console.log('Tek dokunma algılandı, çift dokunma için bekleniyor');
+            }
+        }
+
+        // Dokunma bittiğinde kaydırma hareketi olup olmadığını kontrol et
+        handleSwipeGesture();
+    } else {
+        // Ses ayarlama hareketi tamamlandı
+        console.log('Ses ayarlama tamamlandı.');
+        isVolumeDragging = false; // Bayrağı sıfırla
+        // initialVolume = player.volume(); // Yeni başlangıç sesini kaydet (isteğe bağlı)
+    }
+
+    // event.preventDefault(); // Varsayılan davranışı engellemek isteyebiliriz
+});
+
+function handleSwipeGesture() {
+    const deltaX = touchEndX - touchStartX;
+    if (Math.abs(deltaX) > Math.abs(touchEndY - touchStartY) && Math.abs(deltaX) > swipeThreshold) { // Dikey hareketten daha belirgin yatay hareket
+        // Yatay Kaydırma
+        if (deltaX > 0) {
+            console.log('Sağa Kaydırma'); // Sonraki kanal
+            playNextChannel();
+        } else {
+            console.log('Sola Kaydırma'); // Önceki kanal
+            playPreviousChannel();
+        }
+    }
+}
+
+// Yeni Eklenecek Fonksiyonların Taslağı
+function playNextChannel() {
+    console.log('Sonraki kanal oynatılıyor...');
+    const currentlyPlayingUrl = player.currentSrc();
+    const currentIndex = currentPlaylistChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
+
+    if (currentIndex !== -1 && currentIndex < currentPlaylistChannels.length - 1) {
+        const nextChannel = currentPlaylistChannels[currentIndex + 1];
+        playChannel(nextChannel.url);
+
+        // Çalma listesindeki seçili öğeyi güncelle
+        const previouslySelected = playlistElement.querySelector('li.selected');
+        if (previouslySelected) {
+            previouslySelected.classList.remove('selected');
+        }
+        // allChannelItems kullanarak yeni seçili öğeyi bul ve işaretle
+        const nextSelectedItem = allChannelItems.find(item => item.dataset.url === nextChannel.url);
+        if (nextSelectedItem) {
+            nextSelectedItem.classList.add('selected');
+            // İsteğe bağlı: Yeni seçili öğeye scroll yap
+            nextSelectedItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+    } else {
+        console.log('Son kanaldayız.');
+        // İsteğe bağlı: Listenin başına dönebilir veya başka bir bildirim gösterebilirsiniz.
+    }
+}
+
+function playPreviousChannel() {
+    console.log('Önceki kanal oynatılıyor...');
+    const currentlyPlayingUrl = player.currentSrc();
+    const currentIndex = currentPlaylistChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
+
+    if (currentIndex > 0) {
+        const previousChannel = currentPlaylistChannels[currentIndex - 1];
+        playChannel(previousChannel.url);
+
+        // Çalma listesindeki seçili öğeyi güncelle
+        const previouslySelected = playlistElement.querySelector('li.selected');
+        if (previouslySelected) {
+            previouslySelected.classList.remove('selected');
+        }
+         // allChannelItems kullanarak yeni seçili öğeyi bul ve işaretle
+        const previousSelectedItem = allChannelItems.find(item => item.dataset.url === previousChannel.url);
+        if (previousSelectedItem) {
+            previousSelectedItem.classList.add('selected');
+            // İsteğe bağlı: Yeni seçili öğeye scroll yap
+            previousSelectedItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+    } else {
+        console.log('İlk kanaldayız.');
+        // İsteğe bağlı: Listenin sonuna dönebilir veya başka bir bildirim.
+    }
+}
+
+function adjustVolume(newVolume) {
+    if (player) {
+        player.volume(newVolume);
+        console.log('Ses seviyesi ayarlandı:', newVolume);
+        // İsteğe bağlı: Kullanıcıya ses seviyesini gösteren bir UI öğesi
+    }
+}
 
 m3uFileInput.addEventListener('change', (event) => {
     closeUploadModal();
@@ -192,6 +403,9 @@ function parseM3uContent(content) {
             }
         }
     }
+
+    // Ayrıştırılmış kanal listesini global değişkene ata
+    currentPlaylistChannels = channels;
 
     displayChannels(channels);
 }
