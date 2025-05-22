@@ -96,6 +96,7 @@ body {
     display: flex;
     overflow: hidden;
     align-items: center;
+    padding-bottom: 18px;
 }
 
 body.playlist-visible .main-content .video-js {
@@ -166,7 +167,7 @@ body.playlist-visible #playlist {
     background-color: #333;
     border: 1px solid #555;
     margin-bottom: 5px;
-    padding: 12px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
@@ -179,27 +180,42 @@ body.playlist-visible #playlist {
 
 .video-js {
     flex: 1;
-    width: calc(100% - 20px);
-    height: calc(100% - 20px);
+    width: auto !important;
+    height: 100% !important;
     background-color: #000;
-    padding: 0;
-    margin: 10px auto 28px auto;
-    box-sizing: border-box;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
+    margin-left: 0;
+    margin-top: 20px;
+    transition: margin-left 0.3s ease;
 }
 
-.video-js:-webkit-full-screen,
-.video-js:-moz-full-screen,
-.video-js:-ms-fullscreen,
-.video-js:fullscreen,
+.video-js:-webkit-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    margin-left: 0 !important;
+}
+
+.video-js:-moz-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    margin-left: 0 !important;
+}
+
+.video-js:-ms-fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    margin-left: 0 !important;
+}
+
+.video-js:full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    margin-left: 0 !important;
+}
+
 .vjs-fullscreen .video-js {
     width: 100% !important;
     height: 100% !important;
-    padding: 10px;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    margin-left: 0 !important;
 }
 
 #playlist li.copied {
@@ -239,6 +255,7 @@ body.playlist-visible #playlist {
     margin-left: 320px;
 }
 
+/* Kanal listesi açma/kapama çentiği */
 #playlist-toggle-handle {
     position: fixed;
     top: 50%;
@@ -257,8 +274,11 @@ body.playlist-visible #playlist {
     border-bottom-right-radius: 8px;
     transition: left 0.3s ease, opacity 0.3s ease;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
 }
 
+/* Çentiğin içindeki ikon veya metin */
 #playlist-toggle-handle span {
     display: block;
     width: 8px;
@@ -269,28 +289,31 @@ body.playlist-visible #playlist {
     transition: transform 0.3s ease;
 }
 
+/* Liste açıkken çentiğin konumu */
 body.playlist-visible #playlist-toggle-handle {
     left: 300px;
     opacity: 1;
     pointer-events: auto;
 }
 
+/* Liste açıkken çentiğin içindeki ikon sola baksın */
 body.playlist-visible #playlist-toggle-handle span {
     transform: rotate(45deg);
 }
 
+/* Yükleme Modal Stilleri */
 #modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.7); /* Yarı saydam siyah arka plan */
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    visibility: hidden;
+    justify-content: center; /* Paneli yatayda ortala */
+    align-items: center; /* Paneli dikeyde ortala */
+    z-index: 1000; /* Diğer her şeyin üzerinde */
+    visibility: hidden; /* Başlangıçta gizli */
     opacity: 0;
     transition: visibility 0.3s ease, opacity 0.3s ease;
 }
@@ -306,9 +329,9 @@ body.playlist-visible #playlist-toggle-handle span {
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     text-align: center;
-    max-width: 400px;
+    max-width: 400px; /* Maksimum genişlik */
     width: 90%;
-    position: relative;
+    position: relative; /* İçindeki elemanlar için */
 }
 
 #upload-modal h3 {
@@ -349,22 +372,24 @@ body.playlist-visible #playlist-toggle-handle span {
     background-color: #0056b3;
 }
 
+/* Başlıktaki yükle butonu stili */
 #open-upload-modal-button {
     padding: 5px 15px;
     border-radius: 4px;
     border: 1px solid #555;
     font-size: 1rem;
-    background-color: #333;
+    background-color: #333; /* Koyu tema rengi */
     color: #f4f4f4;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-left: auto;
+    margin-left: auto; /* Başlığın sağına hizala */
 }
 
 #open-upload-modal-button:hover {
     background-color: #555;
 }
 
+/* Playlist başlık ve butonunu sarmalayan div için stil */
 .playlist-header-container {
     display: flex;
     justify-content: space-between;
@@ -372,6 +397,7 @@ body.playlist-visible #playlist-toggle-handle span {
     margin-bottom: 10px;
 }
 
+/* Playlist içindeki Yükle butonu stili */
 #playlist #open-upload-modal-button {
     padding: 5px 10px;
     border-radius: 4px;
@@ -388,12 +414,13 @@ body.playlist-visible #playlist-toggle-handle span {
     background-color: #555;
 }
 
+/* Scroll to Top Button Stilleri */
 .scroll-to-top {
     position: absolute;
     bottom: 0px;
     left: 120px;
     transform: none;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6); /* Hafif şeffaf arka plan */
     color: #f4f4f4;
     border: none;
     border-radius: 50%;
@@ -403,14 +430,14 @@ body.playlist-visible #playlist-toggle-handle span {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
+    opacity: 0; /* Başlangıçta gizli */
+    visibility: hidden; /* Başlangıçta gizli */
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    z-index: 102;
+    z-index: 102; /* Çentiğin üzerinde */
 }
 
 .scroll-to-top:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.8); /* Daha koyu arka plan */
 }
 
 .scroll-to-top svg {
@@ -418,170 +445,14 @@ body.playlist-visible #playlist-toggle-handle span {
     height: 16px;
 }
 
+/* Playlist açıkken ve scroll aşağıdayken butonu göster */
 body.playlist-visible .scroll-to-top.show {
     opacity: 1;
     visibility: visible;
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 5px;
-    }
-
-    .header {
-        gap: 10px;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .input-group {
-        flex-direction: column;
-        width: 100%;
-        margin-left: 0;
-    }
-
-    #m3uUrlInput, #m3uFileInput, #loadUrlButton {
-        width: 100%;
-        margin-left: 0;
-        font-size: 0.9rem;
-        padding: 12px;
-    }
-
-    #loadUrlButton, #m3uFileInput::file-selector-button {
-        padding: 8px 12px;
-    }
-
-    #open-upload-modal-button {
-        width: 100%;
-        padding: 12px;
-        margin-left: 0;
-    }
-
-    .main-content {
-        flex-direction: column;
-        padding: 5px;
-    }
-
-    .video-js {
-        width: 100%;
-        height: auto;
-        max-height: 50vh;
-        margin: 10px auto;
-        padding: 5px;
-        border-radius: 8px;
-    }
-
-    body.playlist-visible .main-content .video-js {
-        margin-left: 0;
-    }
-
-    #playlist {
-        width: 100%;
-        height: 40vh;
-        top: auto;
-        bottom: 0;
-        transform: translateY(100%);
-        border-radius: 8px 8px 0 0;
-        z-index: 1000;
-    }
-
-    body.playlist-visible #playlist {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    #playlist-toggle-handle {
-        top: auto;
-        bottom: 40vh;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 20px;
-        border-radius: 8px 8px 0 0;
-        background-color: #2a2a2a;
-        z-index: 1001;
-    }
-
-    #playlist-toggle-handle span {
-        transform: rotate(135deg);
-    }
-
-    body.playlist-visible #playlist-toggle-handle {
-        left: 50%;
-        bottom: calc(40vh - 20px);
-    }
-
-    body.playlist-visible #playlist-toggle-handle span {
-        transform: rotate(315deg);
-    }
-
-    #playlist-search {
-        font-size: 0.9rem;
-        padding: 6px;
-    }
-
-    #playlist li {
-        padding: 12px;
-        font-size: 0.9rem;
-    }
-
-    #upload-modal {
-        width: 95%;
-        max-width: 350px;
-        padding: 15px;
-    }
-
-    #upload-modal .input-group {
-        gap: 8px;
-    }
-
-    .scroll-to-top {
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 10px;
-        width: 40px;
-        height: 40px;
-    }
-
-    body.playlist-visible .scroll-to-top.show {
-        bottom: calc(40vh + 10px);
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 2px;
-    }
-
-    .video-js {
-        max-height: 40vh;
-        border-radius: 4px;
-    }
-
-    #playlist {
-        height: 50vh;
-    }
-
-    #playlist-toggle-handle {
-        bottom: 50vh;
-    }
-
-    body.playlist-visible #playlist-toggle-handle {
-        bottom: calc(50vh - 20px);
-    }
-
-    #playlist li {
-        font-size: 0.8rem;
-        padding: 6px;
-    }
-
-    #upload-modal {
-        padding: 10px;
-        max-width: 300px;
-    }
-
-    #m3uUrlInput, #m3uFileInput, #loadUrlButton, #open-upload-modal-button {
-        font-size: 0.8rem;
-        padding: 6px;
-    }
-}
+/* Playlist gizliyken scroll butonu gizle - Bu kural artık .show kuralı ile birleşti */
+/* body:not(.playlist-visible) .scroll-to-top { */
+/*     opacity: 0; */
+/*     visibility: hidden; */
+/* } */
