@@ -20,7 +20,27 @@ playlistContainer.insertBefore(searchInput, playlistElement);
 
 let allChannelItems = [];
 
-const scrollToTopButton = document.getElementById('scroll-to-top-button');
+// Function to update toggle handle visibility based on screen size
+function updateToggleHandleVisibility() {
+    if (window.innerWidth <= 768) {
+        // On smaller screens (phones/tablets), always show the handle
+        playlistToggleHandle.style.opacity = '1';
+        playlistToggleHandle.style.pointerEvents = 'auto';
+    } else {
+        // On larger screens (desktops), initially hide the handle
+        // The mousemove listener will handle showing it on hover near the edge
+        if (!body.classList.contains('playlist-visible')) { // Don't hide if playlist is already visible
+           playlistToggleHandle.style.opacity = '0';
+           playlistToggleHandle.style.pointerEvents = 'none';
+        }
+    }
+}
+
+// Initial call on page load
+updateToggleHandleVisibility();
+
+// Update on window resize
+window.addEventListener('resize', updateToggleHandleVisibility);
 
 searchInput.addEventListener('input', (event) => {
     const searchTerm = event.target.value.toLowerCase();
@@ -35,36 +55,24 @@ searchInput.addEventListener('input', (event) => {
     });
 });
 
-scrollToTopButton.addEventListener('click', () => {
-    playlistContainer.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-});
-
-playlistContainer.addEventListener('scroll', () => {
-    if (playlistContainer.scrollTop > 100) { // 100px aşağı kaydırıldığında göster
-        scrollToTopButton.classList.add('show');
-    } else {
-        scrollToTopButton.classList.remove('show');
-    }
-});
-
 window.addEventListener('mousemove', (event) => {
-    const mouseX = event.clientX;
-    const playlistRect = playlistContainer.getBoundingClientRect();
-    const toggleHandleRect = playlistToggleHandle.getBoundingClientRect();
+    // Only run this logic on wider screens (non-mobile)
+    if (window.innerWidth > 768) {
+        const mouseX = event.clientX;
+        const playlistRect = playlistContainer.getBoundingClientRect();
+        const toggleHandleRect = playlistToggleHandle.getBoundingClientRect();
 
-    const isNearLeftEdge = mouseX <= 75;
-    const isOverHandle = mouseX >= toggleHandleRect.left && mouseX <= toggleHandleRect.right &&
-                         event.clientY >= toggleHandleRect.top && event.clientY <= toggleHandleRect.bottom;
+        const isNearLeftEdge = mouseX <= 75;
+        const isOverHandle = mouseX >= toggleHandleRect.left && mouseX <= toggleHandleRect.right &&
+                             event.clientY >= toggleHandleRect.top && event.clientY <= toggleHandleRect.bottom;
 
-    if (!body.classList.contains('playlist-visible') && isNearLeftEdge) {
-        playlistToggleHandle.style.opacity = '1';
-        playlistToggleHandle.style.pointerEvents = 'auto';
-    } else if (!body.classList.contains('playlist-visible') && !isNearLeftEdge && !isOverHandle) {
-         playlistToggleHandle.style.opacity = '0';
-         playlistToggleHandle.style.pointerEvents = 'none';
+        if (!body.classList.contains('playlist-visible') && isNearLeftEdge) {
+            playlistToggleHandle.style.opacity = '1';
+            playlistToggleHandle.style.pointerEvents = 'auto';
+        } else if (!body.classList.contains('playlist-visible') && !isNearLeftEdge && !isOverHandle) {
+             playlistToggleHandle.style.opacity = '0';
+             playlistToggleHandle.style.pointerEvents = 'none';
+        }
     }
 });
 
@@ -284,3 +292,23 @@ function playChannel(url, shouldMute = false) {
         console.error("Video.js oynatıcı nesnesi bulunamadı.");
     }
 }
+
+// Mobil cihazlardaysa sayfa yüklendiğinde playlisti görünür yap
+window.addEventListener('load', () => {
+    if (window.innerWidth <= 768) {
+        body.classList.add('playlist-visible');
+    }
+});
+
+// Pencere boyutu değiştiğinde mobil boyuta girilirse playlisti görünür yap
+window.addEventListener('resize', () => {
+     if (window.innerWidth <= 768 && !body.classList.contains('playlist-visible')) {
+        body.classList.add('playlist-visible');
+    } /*else if (window.innerWidth > 768 && body.classList.contains('playlist-visible')) {
+        // Eğer masaüstü boyuta dönülürse ve playlist açıksa,
+        // masaüstü varsayılan durumuna göre davranması için sınıfı kaldırabiliriz.
+        // Ancak mobil deneyimi bozmamak adına bu kısmı şimdilik opsiyonel tutuyorum.
+        // body.classList.remove('playlist-visible');
+        // updateToggleHandleVisibility(); // Masaüstü handle görünürlüğünü güncelle
+    }*/
+});
