@@ -2,74 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M3U Player</title>
     <!-- Video.js CSS -->
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-    <!-- Modüler CSS Dosyaları -->
-    <link href="css/main.css" rel="stylesheet" />
-    <link href="css/playlist.css" rel="stylesheet" />
-    <link href="css/player.css" rel="stylesheet" />
-    <link href="css/modal.css" rel="stylesheet" />
-    <link href="css/responsive.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Mobile Header -->
-    <div class="mobile-header">
-        <div class="mobile-header-content">
-            <h1>M3U Player</h1>
-            <div class="mobile-controls">
-                <button id="mobile-playlist-toggle" class="mobile-btn">Kanallar</button>
-                <button id="mobile-upload-button" class="mobile-btn">Yükle</button>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="main-content">
             <div id="playlist">
-                <div class="playlist-header-container">
+                <div class="playlist-header-container"> <!-- Başlık ve butonu sarmalamak için yeni div -->
                     <h2>Kanal Listesi</h2>
+                    <!-- Yükleme modalını açacak buton buraya taşındı -->
                     <button id="open-upload-modal-button">Yükle</button>
                 </div>
-                <input type="text" id="playlist-search" placeholder="Kanal Ara...">
                 <ul>
                     <!-- Kanal listesi buraya JavaScript ile eklenecek -->
                 </ul>
             </div>
-            
-            <!-- Scroll to Top Button -->
-            <button id="scroll-to-top-button" class="scroll-to-top">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="19" x2="12" y2="5"></line>
-                    <polyline points="5 12 12 5 19 12"></polyline>
-                </svg>
-            </button>
-            
             <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" data-setup='{}'>
                 <p class="vjs-no-js">
                     To view this video please enable JavaScript, and consider upgrading to a
                     web browser that
-                    <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                    <a href="https://videojs.com/html5-video-support/" target="_blank"
+                    >supports HTML5 video</a
+                    >
                 </p>
             </video>
         </div>
-        
-        <!-- Desktop Toggle Handle -->
+        <!-- Kanal listesini açıp kapatmak için çentik/buton -->
         <div id="playlist-toggle-handle">
             <span></span>
         </div>
     </div>
 
-    <!-- Upload Modal -->
+    <!-- Yükleme Modal Yapısı -->
     <div id="modal-overlay">
         <div id="upload-modal">
             <h3>M3U Yükle</h3>
-            <div class="input-group">
+            <div class="input-group"> <!-- Modal içindeki input grubu -->
                 <input type="file" id="m3uFileInput" accept=".m3u">
                 <input type="text" id="m3uUrlInput" placeholder="Veya M3U URL'sini buraya yapıştırın">
                 <button id="loadUrlButton">URL'den Yükle</button>
             </div>
+            <!-- İsteğe bağlı: Modalı kapatma butonu eklenebilir -->
         </div>
     </div>
 
@@ -77,12 +54,6 @@
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <!-- Video.js HLS ve DASH desteği -->
     <script src="https://cdn.jsdelivr.net/npm/@videojs/http-streaming@3.10.0/dist/videojs-http-streaming.min.js"></script>
-    
-    <!-- Modüler JavaScript Dosyaları -->
-    <script src="js/player.js"></script>
-    <script src="js/playlist.js"></script>
-    <script src="js/m3uParser.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/main.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

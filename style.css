@@ -1,0 +1,815 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1e1e1e;
+    color: #f4f4f4;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 100%;
+    margin: auto;
+    background: #2a2a2a;
+    padding: 10px;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    min-height: 0;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#m3uFileInput,
+#m3uUrlInput, #loadUrlButton {
+    padding: 3px 6px;
+    border-radius: 3px;
+    border: 1px solid #555;
+    font-size: 0.8rem;
+    background-color: #333;
+    color: #f4f4f4;
+    outline: none;
+    pointer-events: auto;
+    margin-left: 18px;
+}
+
+#m3uUrlInput {
+    flex: 1;
+    min-width: 120px;
+}
+
+#m3uUrlInput::placeholder {
+    color: #bbb;
+}
+
+#m3uUrlInput:focus {
+    border-color: #90caf9;
+    box-shadow: 0 0 5px rgba(144, 202, 249, 0.5);
+}
+
+#loadUrlButton {
+    background-color: #0056b3;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    padding: 3px 10px;
+}
+
+#loadUrlButton:hover {
+    background-color: #003f7f;
+}
+
+#m3uFileInput::file-selector-button {
+    background-color: #0056b3;
+    color: white;
+    padding: 3px 6px;
+    border: none;
+    border-radius: 3px;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+#m3uFileInput::file-selector-button:hover {
+    background-color: #003f7f;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+}
+
+body.playlist-visible .main-content .video-js {
+    margin-left: 320px;
+    transition: margin-left 0.3s ease;
+}
+
+#playlist {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    background-color: #2a2a2a;
+    z-index: 1;
+    padding: 10px;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    overflow-y: auto;
+}
+
+#playlist::-webkit-scrollbar {
+    width: 8px;
+}
+
+#playlist::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+#playlist::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #2a2a2a;
+}
+
+#playlist::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
+}
+
+body.playlist-visible #playlist {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#playlist h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #757575;
+}
+
+#playlist .group-header {
+    font-weight: bold;
+    margin-top: 15px;
+    color: #bb86fc;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#playlist ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#playlist li {
+    background-color: #333;
+    border: 1px solid #555;
+    margin-bottom: 5px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    color: #f4f4f4;
+}
+
+#playlist li:hover {
+    background-color: #555;
+}
+
+.video-js {
+    flex: 1;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    background-color: #000;
+    padding: 0;
+    margin: 10px auto 20px auto;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.video-js:-webkit-full-screen,
+.video-js:-moz-full-screen,
+.video-js:-ms-fullscreen,
+.video-js:fullscreen,
+.vjs-fullscreen .video-js {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 10px;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+#playlist li.copied {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#playlist li.selected {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+#playlist-search {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 1rem;
+    background-color: #333;
+    color: #f4f4f4;
+    outline: none;
+}
+
+#playlist-search::placeholder {
+    color: #bbb;
+}
+
+#playlist-search:focus {
+    border-color: #90caf9;
+    box-shadow: 0 0 5px rgba(144, 202, 249, 0.5);
+}
+
+#playlist.has-search ~ .main-content .video-js {
+    margin-left: 320px;
+}
+
+#playlist-toggle-handle {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background-color: #2a2a2a;
+    color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    transition: left 0.3s ease, opacity 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+#playlist-toggle-handle span {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-left: 2px solid #f4f4f4;
+    border-bottom: 2px solid #f4f4f4;
+    transform: rotate(225deg);
+    transition: transform 0.3s ease;
+}
+
+body.playlist-visible #playlist-toggle-handle {
+    left: 300px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.playlist-visible #playlist-toggle-handle span {
+    transform: rotate(45deg);
+}
+
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s ease, opacity 0.3s ease;
+}
+
+#modal-overlay.visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+#upload-modal {
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+}
+
+#upload-modal h3 {
+    margin-top: 0;
+    color: #90caf9;
+    margin-bottom: 20px;
+}
+
+#upload-modal .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+    opacity: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+#upload-modal .input-group input[type="file"]::file-selector-button {
+    background-color: #0056b3;
+    color: white;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+#upload-modal .input-group button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#upload-modal .input-group button:hover {
+    background-color: #0056b3;
+}
+
+#open-upload-modal-button {
+    padding: 5px 15px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 1rem;
+    background-color: #333;
+    color: #f4f4f4;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: auto;
+}
+
+#open-upload-modal-button:hover {
+    background-color: #555;
+}
+
+.playlist-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#playlist #open-upload-modal-button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 0.9rem;
+    background-color: #333;
+    color: #f4f4f4;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+#playlist #open-upload-modal-button:hover {
+    background-color: #555;
+}
+
+.scroll-to-top {
+    position: absolute;
+    bottom: 0px;
+    left: 120px;
+    transform: none;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #f4f4f4;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 102;
+}
+
+.scroll-to-top:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.scroll-to-top svg {
+    width: 16px;
+    height: 16px;
+}
+
+body.playlist-visible .scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 5px;
+    }
+
+    .header {
+        gap: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .input-group {
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #m3uUrlInput,
+    #m3uFileInput,
+    #loadUrlButton,
+    #open-upload-modal-button {
+        width: 100%;
+        margin-left: 0;
+        font-size: 0.9rem;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    #loadUrlButton, #m3uFileInput::file-selector-button {
+        padding: 8px 12px;
+    }
+
+    /* Portrait Orientation Styles */
+    @media (orientation: portrait) {
+        .main-content {
+            flex-direction: column; /* Dikey düzen */
+            padding: 5px;
+            flex: 1;
+            overflow: hidden;
+            display: flex; /* Flex container */
+            align-items: center; /* Öğeleri ortala */
+        }
+
+        .video-js {
+            width: 100%; /* Genişliği tam yap */
+            height: auto; /* Yüksekliği otomatik bırak veya vh kullan */
+            max-height: 50vh; /* Maksimum yüksekliği sınırla */
+            min-height: 200px; /* Minimum yükseklik */
+            margin: 10px auto; /* Üstte ve altta boşluk */
+            padding: 5px;
+            border-radius: 8px;
+            order: 1; /* Video üstte */
+        }
+
+        body.playlist-visible .main-content .video-js {
+            margin-left: 0; /* Çalma listesi açıkken sola kaydırmayı kaldır */
+        }
+
+        #playlist {
+            width: 100%; /* Genişliği tam yap */
+            position: static; /* Sabit konumu kaldır */
+            top: auto;
+            bottom: auto;
+            transform: none;
+            opacity: 1; /* Her zaman görünür */
+            border-radius: 8px 8px 0 0;
+            z-index: auto;
+            margin-top: 10px; /* Video altından boşluk */
+            height: auto; /* Yüksekliği otomatik */
+            order: 2; /* Çalma listesi altta */
+            background-color: #2a2a2a;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        body.playlist-visible #playlist {
+             transform: none;
+             opacity: 1;
+        }
+
+        #playlist-toggle-handle {
+            display: none; /* Dikey konumda çentiği gizle */
+        }
+         .scroll-to-top {
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Çalma listesi yüksekliğine göre scroll-to-top butonunun konumunu ayarla */
+        body.playlist-visible .scroll-to-top.show {
+             /* bottom: calc(#playlist.height + 20px); */ /* JavaScript gerekebilir */
+             bottom: 420px; /* Örnek sabit değer - ayarlanması gerekebilir */
+        }
+    }
+
+    /* Landscape Orientation Styles */
+    @media (orientation: landscape) {
+        .main-content {
+            flex-direction: row; /* Yatay düzen */
+            padding: 5px;
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .video-js {
+            flex: 1; /* Kalan alanı kapla */
+            width: auto; /* Genişliği flex'e bırak */
+            height: calc(100vh - 20px - var(--header-height)); /* Başlık yüksekliğini düşerek kalan yüksekliği kullan */
+            min-height: 250px; /* Minimum yükseklik */
+            margin: 0;
+            padding: 5px;
+            border-radius: 8px;
+            order: 2; /* Video sağda */
+        }
+
+         body.playlist-visible .main-content .video-js {
+            margin-left: 300px; /* Çalma listesi açıkken video oynatıcıyı sağa kaydır */
+        }
+
+        #playlist {
+            width: 300px; /* Sabit genişlik */
+            position: fixed; /* Sabit konumlandır */
+            top: 0; /* Üstten başla */
+            left: 0; /* Soldan başla */
+            height: 100vh; /* Tam yüksekliği kapla */
+            transform: translateX(-100%); /* Başlangıçta gizle */
+            opacity: 0; /* Başlangıçta şeffaf yap */
+            transition: transform 0.3s ease, opacity 0.3s ease; /* Animasyon ekle */
+            border-radius: 0;
+            z-index: 1000;
+            margin-top: 0;
+            background-color: #2a2a2a;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            order: 1; /* Çalma listesi solda */
+        }
+
+        body.playlist-visible #playlist {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #playlist-toggle-handle {
+            display: flex; /* Yatay konumda çentiği göster */
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 60px;
+            background-color: #2a2a2a;
+            color: #f4f4f4;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            transition: left 0.3s ease, opacity 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+             opacity: 1;
+            pointer-events: auto;
+        }
+
+         body.playlist-visible #playlist-toggle-handle {
+            left: 300px; /* Çalma listesi açıkken sağa kaydır */
+            opacity: 1;
+            pointer-events: auto;
+        }
+         .scroll-to-top {
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+            width: 40px;
+            height: 40px;
+        }
+
+        body.playlist-visible .scroll-to-top.show {
+             bottom: 20px; /* Altta sabit kalsın */
+        }
+    }
+}
+
+@media (max-width: 480px) {
+     /* Portrait Orientation Styles */
+    @media (orientation: portrait) {
+         .container {
+            padding: 2px;
+        }
+         .main-content {
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .video-js {
+            max-height: 40vh;
+            min-height: 180px;
+            border-radius: 4px;
+            width: 100%;
+             margin: 10px auto;
+             padding: 5px;
+             order: 1;
+        }
+         body.playlist-visible .main-content .video-js {
+            margin-left: 0;
+        }
+
+        #playlist {
+            height: 50%;
+            bottom: 20px;
+            transform: none;
+            opacity: 1;
+            width: 100%;
+             position: static;
+             top: auto;
+             border-radius: 8px 8px 0 0;
+             z-index: auto;
+             margin-top: 10px;
+             overflow-y: auto;
+             padding: 10px;
+             box-sizing: border-box;
+             order: 2;
+        }
+        body.playlist-visible #playlist {
+             transform: none;
+             opacity: 1;
+        }
+         #playlist-toggle-handle {
+            display: none; /* Dikey konumda çentiği gizle */
+        }
+        .scroll-to-top {
+            bottom: 20px;
+             left: 50%;
+             transform: translateX(-50%);
+             width: 40px;
+             height: 40px;
+        }
+
+        /* Çalma listesi yüksekliğine göre scroll-to-top butonunun konumunu ayarla */
+        body.playlist-visible .scroll-to-top.show {
+             /* bottom: calc(#playlist.height + 20px); */ /* JavaScript gerekebilir */
+             bottom: 320px; /* Örnek sabit değer - ayarlanması gerekebilir */
+        }
+    }
+
+     /* Landscape Orientation Styles */
+    @media (orientation: landscape) {
+         .container {
+            padding: 2px;
+        }
+         .main-content {
+            flex-direction: row;
+            flex: 1;
+            overflow: hidden;
+             display: flex;
+        }
+        .video-js {
+             flex: 1;
+             width: auto;
+             height: calc(100vh - 10px - var(--header-height));
+             min-height: 180px; /* Daha küçük ekranlar için min yükseklik */
+            border-radius: 4px;
+            margin: 0;
+             order: 2;
+        }
+
+         body.playlist-visible .main-content .video-js {
+            margin-left: 250px; /* Çalma listesi açıkken video oynatıcıyı sağa kaydır */
+        }
+
+        #playlist {
+            width: 250px; /* Daha küçük genişlik */
+            height: 100vh; /* Tam yüksekliği kapla */
+            bottom: auto; /* Alttan konumlandırmayı kaldır */
+            transform: translateX(-100%);
+            opacity: 0;
+            z-index: 1000;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+             order: 1;
+        }
+
+        body.playlist-visible #playlist {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        #playlist-toggle-handle {
+            display: flex; /* Yatay konumda çentiği göster */
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 60px;
+            background-color: #2a2a2a;
+            color: #f4f4f4;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            transition: left 0.3s ease, opacity 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+             opacity: 1;
+            pointer-events: auto;
+        }
+
+        body.playlist-visible #playlist-toggle-handle {
+            left: 250px; /* Çalma listesi açıkken sağa kaydır */
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #playlist li {
+            font-size: 0.8rem;
+            padding: 6px;
+        }
+
+        #upload-modal {
+            padding: 10px;
+            max-width: 300px;
+        }
+
+        #m3uUrlInput,
+        #m3uFileInput,
+        #loadUrlButton,
+        #open-upload-modal-button {
+            font-size: 0.8rem;
+            padding: 6px;
+            box-sizing: border-box;
+        }
+
+        .scroll-to-top {
+            bottom: 20px;
+             left: 50%;
+             transform: translateX(-50%);
+             width: 40px;
+             height: 40px;
+        }
+
+        body.playlist-visible .scroll-to-top.show {
+            bottom: 20px;
+        }
+    }
+}
+
+/* Header yüksekliği için değişken tanımlama */
+:root {
+  --header-height: 0px; /* Varsayılan değer, header yüksekliğine göre güncellenmeli */
+}
+
+@media (max-width: 768px) {
+     @media (orientation: portrait) {
+         :root {
+            --header-height: 100px; /* Örnek değer, gerçek yüksekliğe göre ayarlanmalı */
+        }
+     }
+     @media (orientation: landscape) {
+         :root {
+            --header-height: 60px; /* Yatay için örnek değer */
+        }
+     }
+}
+
+@media (max-width: 480px) {
+     @media (orientation: portrait) {
+         :root {
+            --header-height: 120px; /* Örnek değer, gerçek yüksekliğe göre ayarlanmalı */
+        }
+     }
+      @media (orientation: landscape) {
+         :root {
+            --header-height: 50px; /* Daha küçük yatay ekranlar için örnek değer */
+        }
+     }
+}
