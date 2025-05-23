@@ -223,10 +223,10 @@ function handleSwipeGesture() {
     // Tam ekran modunda swipe'a izin ver
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
         if (deltaX > 0) {
-            console.log('Sağa Kaydırma (Tam Ekran)'); // Sonraki kanal
+            console.log('Sağa Kaydırma (Tam Ekran) - Sonraki Kanal');
             playNextChannel();
         } else {
-            console.log('Sola Kaydırma (Tam Ekran)'); // Önceki kanal
+            console.log('Sola Kaydırma (Tam Ekran) - Önceki Kanal');
             playPreviousChannel();
         }
     }
