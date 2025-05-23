@@ -12,14 +12,18 @@
     <div class="container">
         <div class="main-content">
             <div id="playlist">
-                <div class="playlist-header-container"> <!-- Başlık ve butonu sarmalamak için yeni div -->
-                    <h2>Kanal Listesi</h2>
-                    <!-- Yükleme modalını açacak buton buraya taşındı -->
-                    <button id="open-upload-modal-button">Yükle</button>
+                <div class="playlist-header-container">
+                    <h2>Playlist Listesi</h2>
+                    <button id="upload-button">+</button>
                 </div>
+                <div id="playlist-tabs">
+                    <!-- Playlist sekmeleri buraya eklenecek -->
+                </div>
+                <input type="text" id="playlist-search" placeholder="Kanal ara...">
                 <ul>
                     <!-- Kanal listesi buraya JavaScript ile eklenecek -->
                 </ul>
+
             </div>
             <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" data-setup='{}'>
                 <p class="vjs-no-js">
@@ -37,16 +41,27 @@
         </div>
     </div>
 
-    <!-- Yükleme Modal Yapısı -->
-    <div id="modal-overlay">
-        <div id="upload-modal">
-            <h3>M3U Yükle</h3>
-            <div class="input-group"> <!-- Modal içindeki input grubu -->
-                <input type="file" id="m3uFileInput" accept=".m3u">
-                <input type="text" id="m3uUrlInput" placeholder="Veya M3U URL'sini buraya yapıştırın">
-                <button id="loadUrlButton">URL'den Yükle</button>
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Playlist Ekle</h3>
+                <span class="close">&times;</span>
             </div>
-            <!-- İsteğe bağlı: Modalı kapatma butonu eklenebilir -->
+            <div class="modal-body">
+                <input type="text" id="playlist-name" placeholder="Playlist adı (opsiyonel)">
+                <div class="upload-options">
+                    <div class="upload-option">
+                        <label for="file-upload">Dosya Yükle:</label>
+                        <input type="file" id="file-upload" accept=".m3u,.m3u8">
+                    </div>
+                    <div class="upload-option">
+                        <label for="url-input">URL Gir:</label>
+                        <input type="url" id="url-input" placeholder="M3U URL'sini buraya yapıştırın">
+                        <button id="load-url">Yükle</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

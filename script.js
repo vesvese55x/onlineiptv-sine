@@ -2,9 +2,7 @@ const player = videojs('my-video');
 
 const defaultM3uUrl = 'https://raw.githubusercontent.com/Sakubaba00/saku/refs/heads/main/playlist1.m3u';
 
-const m3uFileInput = document.getElementById('m3uFileInput');
-const m3uUrlInput = document.getElementById('m3uUrlInput');
-const loadUrlButton = document.getElementById('loadUrlButton');
+
 
 const playlistElement = document.querySelector('#playlist ul');
 const playlistContainer = document.getElementById('playlist');
@@ -12,16 +10,22 @@ const body = document.body;
 
 const playlistToggleHandle = document.getElementById('playlist-toggle-handle');
 
-const searchInput = document.createElement('input');
-searchInput.type = 'text';
-searchInput.id = 'playlist-search';
-searchInput.placeholder = 'Kanal Ara...';
-playlistContainer.insertBefore(searchInput, playlistElement);
+const searchInput = document.getElementById('playlist-search');
+const uploadButton = document.getElementById('upload-button');
+const uploadModal = document.getElementById('upload-modal');
+const closeModal = document.querySelector('.close');
+const playlistNameInput = document.getElementById('playlist-name');
+const fileUpload = document.getElementById('file-upload');
+const urlInput = document.getElementById('url-input');
+const loadUrlButton = document.getElementById('load-url');
+const playlistTabsContainer = document.getElementById('playlist-tabs');
 
 let allChannelItems = [];
 
-// Global kanal listesi değişkeni
-let currentPlaylistChannels = [];
+// Birden fazla playlist yönetimi
+let playlists = [];
+let activePlaylistIndex = -1;
+let playlistCounter = 0;
 
 // Dokunmatik olay dinleyicileri için değişkenler
 let touchStartX = 0;
@@ -167,8 +171,6 @@ videoPlayerElement.addEventListener('touchmove', (event) => {
 videoPlayerElement.addEventListener('touchend', (event) => {
     touchEndX = event.changedTouches[0].clientX;
     touchEndY = event.changedTouches[0].clientY;
-    const touchEndTime = new Date().getTime();
-    const tapDuration = touchEndTime - touchStartTime;
 
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
@@ -209,27 +211,38 @@ videoPlayerElement.addEventListener('touchend', (event) => {
 });
 
 function handleSwipeGesture() {
+    // Sadece tam ekran modunda swipe'a izin ver
+    if (!player.isFullscreen()) {
+        console.log('Tam ekran değil, swipe devre dışı');
+        return;
+    }
+
     const deltaX = touchEndX - touchStartX;
-    if (Math.abs(deltaX) > Math.abs(touchEndY - touchStartY) && Math.abs(deltaX) > swipeThreshold) { // Dikey hareketten daha belirgin yatay hareket
-        // Yatay Kaydırma
+    const deltaY = touchEndY - touchStartY;
+
+    // Tam ekran modunda swipe'a izin ver
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
         if (deltaX > 0) {
-            console.log('Sağa Kaydırma'); // Sonraki kanal
+            console.log('Sağa Kaydırma (Tam Ekran)'); // Sonraki kanal
             playNextChannel();
         } else {
-            console.log('Sola Kaydırma'); // Önceki kanal
+            console.log('Sola Kaydırma (Tam Ekran)'); // Önceki kanal
             playPreviousChannel();
         }
     }
 }
 
-// Yeni Eklenecek Fonksiyonların Taslağı
+// Kanal değiştirme fonksiyonları
 function playNextChannel() {
     console.log('Sonraki kanal oynatılıyor...');
-    const currentlyPlayingUrl = player.currentSrc();
-    const currentIndex = currentPlaylistChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
+    if (activePlaylistIndex === -1 || !playlists[activePlaylistIndex]) return;
 
-    if (currentIndex !== -1 && currentIndex < currentPlaylistChannels.length - 1) {
-        const nextChannel = currentPlaylistChannels[currentIndex + 1];
+    const currentChannels = playlists[activePlaylistIndex].channels;
+    const currentlyPlayingUrl = player.currentSrc();
+    const currentIndex = currentChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
+
+    if (currentIndex !== -1 && currentIndex < currentChannels.length - 1) {
+        const nextChannel = currentChannels[currentIndex + 1];
         playChannel(nextChannel.url);
 
         // Çalma listesindeki seçili öğeyi güncelle
@@ -247,17 +260,19 @@ function playNextChannel() {
 
     } else {
         console.log('Son kanaldayız.');
-        // İsteğe bağlı: Listenin başına dönebilir veya başka bir bildirim gösterebilirsiniz.
     }
 }
 
 function playPreviousChannel() {
     console.log('Önceki kanal oynatılıyor...');
+    if (activePlaylistIndex === -1 || !playlists[activePlaylistIndex]) return;
+
+    const currentChannels = playlists[activePlaylistIndex].channels;
     const currentlyPlayingUrl = player.currentSrc();
-    const currentIndex = currentPlaylistChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
+    const currentIndex = currentChannels.findIndex(channel => channel.url === currentlyPlayingUrl);
 
     if (currentIndex > 0) {
-        const previousChannel = currentPlaylistChannels[currentIndex - 1];
+        const previousChannel = currentChannels[currentIndex - 1];
         playChannel(previousChannel.url);
 
         // Çalma listesindeki seçili öğeyi güncelle
@@ -275,7 +290,6 @@ function playPreviousChannel() {
 
     } else {
         console.log('İlk kanaldayız.');
-        // İsteğe bağlı: Listenin sonuna dönebilir veya başka bir bildirim gösterebilirsiniz.
     }
 }
 
@@ -287,26 +301,56 @@ function adjustVolume(newVolume) {
     }
 }
 
-m3uFileInput.addEventListener('change', (event) => {
-    closeUploadModal();
-    const file = event.target.files[0];
-    if (!file) {
-        return;
+
+
+playlistToggleHandle.addEventListener('click', () => {
+    body.classList.toggle('playlist-visible');
+});
+
+// Modal işlevselliği
+uploadButton.addEventListener('click', () => {
+    uploadModal.style.display = 'block';
+});
+
+closeModal.addEventListener('click', () => {
+    uploadModal.style.display = 'none';
+    clearModalInputs();
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target === uploadModal) {
+        uploadModal.style.display = 'none';
+        clearModalInputs();
     }
+});
+
+function clearModalInputs() {
+    playlistNameInput.value = '';
+    fileUpload.value = '';
+    urlInput.value = '';
+}
+
+// Dosya yükleme
+fileUpload.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
         const content = e.target.result;
-        parseM3uContent(content);
+        const playlistName = playlistNameInput.value.trim() || file.name.replace(/\.[^/.]+$/, "");
+        addNewPlaylist(playlistName, content);
+        uploadModal.style.display = 'none';
+        clearModalInputs();
     };
     reader.readAsText(file);
 });
 
+// URL yükleme
 loadUrlButton.addEventListener('click', async () => {
-    closeUploadModal();
-    const url = m3uUrlInput.value.trim();
+    const url = urlInput.value.trim();
     if (!url) {
-        console.error("Lütfen bir M3U URL'si girin.");
+        alert('Lütfen bir URL girin.');
         return;
     }
 
@@ -316,38 +360,102 @@ loadUrlButton.addEventListener('click', async () => {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const content = await response.text();
-        parseM3uContent(content);
+        const playlistName = playlistNameInput.value.trim() || `Playlist ${playlistCounter + 1}`;
+        addNewPlaylist(playlistName, content);
+        uploadModal.style.display = 'none';
+        clearModalInputs();
     } catch (error) {
-        console.error("M3U URL'si yüklenirken hata oluştu:", error);
-        playlistElement.innerHTML = '';
-        const listItem = document.createElement('li');
-        listItem.textContent = `URL yüklenemedi: ${error.message}`;
-        listItem.style.color = 'red';
-        playlistElement.appendChild(listItem);
+        alert(`URL yüklenirken hata oluştu: ${error.message}`);
     }
 });
 
-playlistToggleHandle.addEventListener('click', () => {
-    body.classList.toggle('playlist-visible');
-});
 
-const openUploadModalButton = document.getElementById('open-upload-modal-button');
-const modalOverlay = document.getElementById('modal-overlay');
 
-openUploadModalButton.addEventListener('click', () => {
-    modalOverlay.classList.add('visible');
-});
 
-modalOverlay.addEventListener('click', (event) => {
-    if (event.target === modalOverlay) {
-        closeUploadModal();
-    }
-});
 
-function closeUploadModal() {
-    modalOverlay.classList.remove('visible');
+// Playlist yönetimi fonksiyonları
+function addNewPlaylist(name, content) {
+    playlistCounter++;
+    const playlist = {
+        id: playlistCounter,
+        name: name,
+        channels: parseM3uContent(content, false)
+    };
+
+    playlists.push(playlist);
+    createPlaylistTab(playlist);
+    switchToPlaylist(playlists.length - 1);
 }
 
+function createPlaylistTab(playlist) {
+    const tab = document.createElement('div');
+    tab.className = 'playlist-tab';
+    tab.dataset.playlistId = playlist.id;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = playlist.name;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-tab';
+    closeBtn.innerHTML = '×';
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removePlaylist(playlist.id);
+    });
+
+    tab.appendChild(nameSpan);
+    tab.appendChild(closeBtn);
+
+    tab.addEventListener('click', () => {
+        const index = playlists.findIndex(p => p.id === playlist.id);
+        switchToPlaylist(index);
+    });
+
+    playlistTabsContainer.appendChild(tab);
+}
+
+function removePlaylist(playlistId) {
+    const index = playlists.findIndex(p => p.id === playlistId);
+    if (index === -1) return;
+
+    // Tab'ı kaldır
+    const tab = document.querySelector(`[data-playlist-id="${playlistId}"]`);
+    if (tab) tab.remove();
+
+    // Playlist'i kaldır
+    playlists.splice(index, 1);
+
+    // Aktif playlist'i güncelle
+    if (activePlaylistIndex === index) {
+        if (playlists.length > 0) {
+            const newIndex = Math.min(index, playlists.length - 1);
+            switchToPlaylist(newIndex);
+        } else {
+            activePlaylistIndex = -1;
+            displayChannels([]);
+        }
+    } else if (activePlaylistIndex > index) {
+        activePlaylistIndex--;
+    }
+}
+
+function switchToPlaylist(index) {
+    if (index < 0 || index >= playlists.length) return;
+
+    // Önceki aktif tab'ı temizle
+    document.querySelectorAll('.playlist-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Yeni aktif tab'ı işaretle
+    const activeTab = document.querySelector(`[data-playlist-id="${playlists[index].id}"]`);
+    if (activeTab) activeTab.classList.add('active');
+
+    activePlaylistIndex = index;
+    displayChannels(playlists[index].channels);
+}
+
+// Varsayılan playlist yükle
 if (defaultM3uUrl) {
     console.log('Varsayılan M3U URL yükleniyor:', defaultM3uUrl);
     fetch(defaultM3uUrl)
@@ -358,7 +466,7 @@ if (defaultM3uUrl) {
             return response.text();
         })
         .then(content => {
-            parseM3uContent(content);
+            addNewPlaylist('Varsayılan', content);
             console.log('Varsayılan M3U listesi başarıyla yüklendi.');
         })
         .catch(error => {
@@ -371,7 +479,7 @@ if (defaultM3uUrl) {
         });
 }
 
-function parseM3uContent(content) {
+function parseM3uContent(content, shouldDisplay = true) {
     const lines = content.split('\n');
     const channels = [];
     let currentChannel = null;
@@ -404,10 +512,11 @@ function parseM3uContent(content) {
         }
     }
 
-    // Ayrıştırılmış kanal listesini global değişkene ata
-    currentPlaylistChannels = channels;
+    if (shouldDisplay) {
+        displayChannels(channels);
+    }
 
-    displayChannels(channels);
+    return channels;
 }
 
 function displayChannels(channels) {
